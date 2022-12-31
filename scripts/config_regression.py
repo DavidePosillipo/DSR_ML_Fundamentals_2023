@@ -19,7 +19,7 @@ scored_data_path = './data/prediction/green_tripdata_'+year_month_pred+'_pred.pk
 
 
 ## MLflow variables
-exp_name = 'NY taxi - level 0'
+#exp_name = 'NY taxi - level 0'
 model_name_pref = 'NY'
 #local path where to save and download objects and artifacts
 local_path_save='./local_artifacts_tmp/' 
