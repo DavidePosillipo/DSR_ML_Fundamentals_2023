@@ -67,9 +67,26 @@ class Preprocess:
             OSS: This parameter has effect only if enable_categorical=False
         '''
 
+        # Pickup dates preprocessing
+        df['lpep_pickup_datetime_week'] = df['lpep_pickup_datetime'].dt.week
+        df['lpep_pickup_datetime_day'] = df['lpep_pickup_datetime'].dt.day
+        df['lpep_pickup_datetime_hour'] = df['lpep_pickup_datetime'].dt.hour
+        df['lpep_pickup_datetime_minute'] = df['lpep_pickup_datetime'].dt.minute
+        df['lpep_pickup_datetime_dayofweek'] = df['lpep_pickup_datetime'].dt.dayofweek
+
         df['PU_DO'] = df['PULocationID'] + '_' + df['DOLocationID']
-        categorical_cols = ['PU_DO']
-        numerical_cols = ['trip_distance']
+
+        categorical_cols = [
+                'PU_DO',
+                'store_and_fwd_flag']
+
+        numerical_cols = ['passenger_count', 
+                'lpep_pickup_datetime_week',
+                'lpep_pickup_datetime_day',
+                'lpep_pickup_datetime_hour',
+                'lpep_pickup_datetime_minute',
+                'lpep_pickup_datetime_dayofweek']
+
 
         #missing imputation
         numeric_means = df[numerical_cols].mean()

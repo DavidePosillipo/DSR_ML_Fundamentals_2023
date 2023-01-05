@@ -32,10 +32,6 @@ target = 'duration'
 models=['lr', 'gb', 'rf', 'xgb']
 #models=[ 'xgb']
 
-#### Linear Regression with no regularization ####
-lr_parameters_search = {'fit_intercept':True}
-lr_max_evals = 1
-
 ##########################################################
 ######## sklearn boosting  parameters ####################
 ##########################################################
