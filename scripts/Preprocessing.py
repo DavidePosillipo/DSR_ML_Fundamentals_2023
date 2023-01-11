@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor
@@ -45,9 +45,13 @@ class Preprocessing:
             df[self.target]  = df[self.target].apply(lambda td: td.total_seconds() / 60)
             df = df[(df[self.target]  >= 1) & (df[self.target]  <= 60)].reset_index(drop=True) #suggested online  
         elif self.task_type=='classification':
-            df = df[~pd.isna(df['trip_type'])]
-            df[self.target] = df.apply(lambda x: 'A' if x['trip_type']==1 else 'B', axis=1)
-            df = df.drop(columns=['trip_type'], axis=1)
+            # dropping cash trips row to avoid data leakage
+            df = df[df.payment_type == 1]
+
+            df[self.target] = (df['tip_amount'] > 0).astype("int")
+            df = df.drop(columns=['tip_amount'], axis=1)
+
+
     
         try:
             Y = df[self.target]
@@ -124,6 +128,7 @@ class Preprocessing:
                 ohe_df = pd.DataFrame(cat_ohe, columns = ohe.get_feature_names_out(input_features = categorical_cols), index = df.index)
                 X = pd.concat([df[numerical_cols], ohe_df], axis=1)
 
+            # using categorical variables directly
             else:
                 cat_ohe = ohe.transform(df[categorical_cols]) # it is an array, convert it in df with column names
                 ohe_df = pd.DataFrame(cat_ohe, columns = ohe.get_feature_names_out(input_features = categorical_cols), index = df.index)
@@ -132,7 +137,13 @@ class Preprocessing:
         return X, ohe
 
 
-    def preprocess_for_classification(self, df: pd.DataFrame, enable_categorical: bool = False,  fit_ohe: bool = False, drop_first_column: bool = False, ohe: OneHotEncoder = None):
+    def preprocess_for_classification(self, df: pd.DataFrame, 
+        enable_categorical: bool = False,  
+        fit_ohe: bool = False, 
+        drop_first_column: bool = False, 
+        ohe: OneHotEncoder = None,
+        perform_scaling: bool = False,
+        scaler: StandardScaler = None):
 
         '''
         - enable_categorical: 
@@ -159,17 +170,18 @@ class Preprocessing:
                 'PU_DO',
                 'store_and_fwd_flag',
                 'RatecodeID',
-                'payment_type']
+                #'payment_type',
+                'trip_type']
 
-        numerical_cols = ['passenger_count', 
+        numerical_cols = [
+                'passenger_count', 
                 'trip_distance',
                 'fare_amount',
                 'extra',
                 'mta_tax',
                 'improvement_surcharge',
-                'tip_amount',
                 'tolls_amount',
-                'total_amount',
+                #'total_amount',
                 'lpep_pickup_datetime_week',
                 'lpep_pickup_datetime_day',
                 'lpep_pickup_datetime_hour',
@@ -183,12 +195,19 @@ class Preprocessing:
 
         df = df.fillna(numeric_means).fillna(categ_modes)
 
+        if perform_scaling:
+            if scaler is None:
+                scaler = StandardScaler().fit(df[numerical_cols])
+            scaled = scaler.transform(df[numerical_cols]) # it is an array, convert it in df with column names
+            scaled_df = pd.DataFrame(scaled, columns = scaler.get_feature_names_out(input_features = numerical_cols), index = df.index)
+            df = pd.concat([df[categorical_cols], scaled_df], axis=1)
+
         if enable_categorical:
             df[categorical_cols] = df[categorical_cols].astype('category')
             X = df[numerical_cols+categorical_cols]
 
         else:
-            # one hot encoding 
+            # one hot encoding (fitting)
             if fit_ohe:
                 if drop_first_column:
                     ohe = OneHotEncoder(
@@ -204,13 +223,13 @@ class Preprocessing:
                 cat_ohe = ohe.transform(df[categorical_cols]) # it is an array, convert it in df with column names
                 ohe_df = pd.DataFrame(cat_ohe, columns = ohe.get_feature_names_out(input_features = categorical_cols), index = df.index)
                 X = pd.concat([df[numerical_cols], ohe_df], axis=1)
-
+            # using ohe already fitted
             else:
                 cat_ohe = ohe.transform(df[categorical_cols]) # it is an array, convert it in df with column names
                 ohe_df = pd.DataFrame(cat_ohe, columns = ohe.get_feature_names_out(input_features = categorical_cols), index = df.index)
                 X = pd.concat([df[numerical_cols], ohe_df], axis=1)
 
-        return X, ohe
+        return X, ohe, scaler
 
 
 

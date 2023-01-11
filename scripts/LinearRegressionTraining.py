@@ -37,11 +37,6 @@ class LinearRegressionTraining(Training):
 								'mae_train': mae_train,
 								'mae_test': mae_test})
 			
-			print('rmse_train = ', rmse_train, 
-				  '\n rmse_test', rmse_test,
-				  '\n mae_train', mae_train,
-				  '\n mae_test', mae_test)
-			
 			mlflow.log_artifact(local_path = self.local_path_save + run_name + '_ohe.pkl', artifact_path='preprocessing') 
 			mlflow.sklearn.log_model(lr, artifact_path='model')
 			
@@ -74,11 +69,6 @@ class LinearRegressionTraining(Training):
 		    					'rmse_test': rmse_test,
 		    					'mae_train': mae_train,
 		    					'mae_test': mae_test})
-		    
-		    print('rmse_train = ', rmse_train, 
-		    	  '\n rmse_test', rmse_test,
-		    	  '\n mae_train', mae_train,
-		    	  '\n mae_test', mae_test)
 		    
 		    mlflow.log_artifact(local_path = self.local_path_save + run_name + '_ohe.pkl', artifact_path='preprocessing') 
 		    mlflow.sklearn.log_model(lr, artifact_path='model')
@@ -113,11 +103,6 @@ class LinearRegressionTraining(Training):
 	        					'mae_train': mae_train,
 	        					'mae_test': mae_test})
 	        
-	        print('rmse_train = ', rmse_train, 
-	        	  '\n rmse_test', rmse_test,
-	        	  '\n mae_train', mae_train,
-	        	  '\n mae_test', mae_test)
-	        
 	        mlflow.log_artifact(local_path = self.local_path_save + run_name + '_ohe.pkl', artifact_path='preprocessing') 
 	        mlflow.sklearn.log_model(lr, artifact_path='model')
 
@@ -150,11 +135,6 @@ class LinearRegressionTraining(Training):
 	        					'rmse_test': rmse_test,
 	        					'mae_train': mae_train,
 	        					'mae_test': mae_test})
-	        
-	        print('rmse_train = ', rmse_train, 
-	        	  '\n rmse_test', rmse_test,
-	        	  '\n mae_train', mae_train,
-	        	  '\n mae_test', mae_test)
 	        
 	        mlflow.log_artifact(local_path = self.local_path_save + run_name + '_ohe.pkl', artifact_path='preprocessing') 
 	        mlflow.sklearn.log_model(lr, artifact_path='model')

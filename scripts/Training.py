@@ -8,9 +8,6 @@ import numpy as np
 import mlflow
 from hyperopt import STATUS_OK
 
-from scripts.config import positive_label
-
-
 class Training:
 
     def __init__(self, input_data_path, local_path_save, year_month, model_name):
@@ -38,24 +35,30 @@ class Training:
         return rmse_train, rmse_test, mae_train, mae_test
         
         
-    def classification_evaluation(self, Y_train, Y_test, Y_pred_train, Y_pred_test):
+    def classification_evaluation(self, Y_train, Y_test, Y_pred_train_prob=None, Y_pred_test_prob=None, Y_pred_train=None, Y_pred_test=None, threshold=0.5):
         '''
         Function for evaluation of binary classification models results
         '''
+        if Y_pred_train is None and Y_pred_test is None:
+            # Using the threshold to determine the predicted labels given
+            # the predicted probabilities
+            Y_pred_train = [0 if x>=threshold else 1 for x in Y_pred_train_prob[:, 0]]
+            Y_pred_test = [0 if x>=threshold else 1 for x in Y_pred_test_prob[:, 0]]
+    
         accuracy_train = accuracy_score(Y_train, Y_pred_train)
         accuracy_test = accuracy_score(Y_test, Y_pred_test)
 
-        precision_train = precision_score(Y_train, Y_pred_train, pos_label=positive_label)
-        precision_test = precision_score(Y_test, Y_pred_test, pos_label=positive_label)
+        precision_train = precision_score(Y_train, Y_pred_train)
+        precision_test = precision_score(Y_test, Y_pred_test)
 
-        recall_train = recall_score(Y_train, Y_pred_train, pos_label=positive_label)
-        recall_test = recall_score(Y_test, Y_pred_test, pos_label=positive_label)
+        recall_train = recall_score(Y_train, Y_pred_train)
+        recall_test = recall_score(Y_test, Y_pred_test)
 
-        #roc_auc_train = roc_auc_score(Y_train, Y_pred_train)
-        #roc_auc_test = roc_auc_score(Y_test, Y_pred_test)
+        f1_score_train = f1_score(Y_train, Y_pred_train)
+        f1_score_test = f1_score(Y_test, Y_pred_test)
 
-        f1_score_train = f1_score(Y_train, Y_pred_train, pos_label=positive_label)
-        f1_score_test = f1_score(Y_test, Y_pred_test, pos_label=positive_label)
+        roc_auc_train = roc_auc_score(Y_train, Y_pred_train_prob[:, 1])
+        roc_auc_test = roc_auc_score(Y_test, Y_pred_test_prob[:, 1])
 
         results = {'accuracy_train': accuracy_train,
                 'accuracy_test': accuracy_test,
@@ -63,8 +66,8 @@ class Training:
                 'precision_test': precision_test,
                 'recall_train': recall_train,
                 'recall_test': recall_test,
-                #'roc_auc_train': roc_auc_train,
-                #'roc_auc_test': roc_auc_test,
+                'roc_auc_train': roc_auc_train,
+                'roc_auc_test': roc_auc_test,
                 'f1_score_train': f1_score_train,
                 'f1_score_test': f1_score_test}
 
@@ -84,19 +87,31 @@ class Training:
             most_frequent_class = Y_train.mode()[0]
             Y_pred_train = np.repeat(most_frequent_class, Y_train.shape[0])
             Y_pred_test = np.repeat(most_frequent_class, Y_test.shape[0])
+            
+            # preparing the fake probabilities
+            # TODO make sure that it works also if labels are not 0 and 1
+            if most_frequent_class == 0:
+                x = np.array([[1,0]])
+            else:
+                x = np.array([[0,1]])
+            
+            Y_pred_train_prob = np.repeat(x, Y_train.shape[0], axis=0)
+            Y_pred_test_prob = np.repeat(x, Y_test.shape[0], axis=0)
+
 
             baseline_metrics = self.classification_evaluation(
-                    Y_train, Y_test, Y_pred_train, Y_pred_test
+                    Y_train=Y_train, 
+                    Y_test=Y_test, 
+                    Y_pred_train=Y_pred_train, 
+                    Y_pred_test=Y_pred_test,
+                    Y_pred_train_prob=Y_pred_train_prob,
+                    Y_pred_test_prob=Y_pred_test_prob
             )
 
             mlflow.log_metrics(baseline_metrics)
 
-            print(baseline_metrics)
-
-            mlflow.log_artifact(local_path = self.local_path_save + run_name + '_ohe.pkl', artifact_path='preprocessing') 
-            mlflow.sklearn.log_model(most_frequent_class, artifact_path='model')
         
-        return {'loss': baseline_metrics['accuracy_test'], 'status': STATUS_OK}
+        return {'loss': baseline_metrics['roc_auc_test'], 'status': STATUS_OK}
     
 
 
@@ -123,13 +138,6 @@ class Training:
                                 'mae_train': mae_train,
                                 'mae_test': mae_test})
 
-            print('rmse_train = ', rmse_train, 
-                  '\n rmse_test', rmse_test,
-                  '\n mae_train', mae_train,
-                  '\n mae_test', mae_test)
-
-            mlflow.log_artifact(local_path = self.local_path_save + run_name + '_ohe.pkl', artifact_path='preprocessing') 
-            mlflow.sklearn.log_model(average_y_train, artifact_path='model')
         
         return {'loss': rmse_test, 'status': STATUS_OK}
     

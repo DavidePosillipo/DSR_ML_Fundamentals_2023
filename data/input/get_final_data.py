@@ -9,8 +9,8 @@ from sqlalchemy import desc
 
 
 #for a not too aggressive cut, set pu_do_ts = 10, frac = 1
-pu_do_ts = 50 # min freq of pu_do to keep. The higher, the smaller the final dataset
-frac = 0.1 #random select frac % of rows
+pu_do_ts = 10 # min freq of pu_do to keep. The higher, the smaller the final dataset
+frac = 1 #random select frac % of rows
 
 year_months = ['2022-01', '2022-02', '2022-03', '2022-04']
 raw_data_path = './data_raw/green_tripdata_'

@@ -27,10 +27,10 @@ local_path_save='./local_artifacts_tmp/'
 
 #target variable name
 target_regression = 'duration'
-target_classification = 'type'
+target_classification = 'tipped'
 
 #label considered as positive for binary classification
-positive_label = 'B'
+#positive_label = 'B'
 
 
 models=['lr', 'gb', 'rf', 'xgb']
