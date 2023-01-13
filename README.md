@@ -48,4 +48,4 @@ For the applications, the NY taxi trip data are used. Go to https://www1.nyc.gov
 To access the mlflow UI, just run from the repository folder the following command `mlflow ui --backend-store-uri sqlite:///mlflow.db` and open on a web browser the generated ip (e.g. http://127.0.0.1:5000/)
 
 ## External Resources
-A very good resource that I will refer to during the class is the following repository: https://github.com/dvgodoy/ML_Fundamentals. It contains interective widgets to explore the ML models properties. The author is a DSR alumnus and former DSR teacher. 
+A very good resource that I will refer to during the class is the following repository: https://github.com/dvgodoy/ML_Fundamentals. It contains interactive widgets to explore the ML models properties. The author is a DSR alumnus and former DSR teacher. 
