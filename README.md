@@ -4,27 +4,27 @@ Repository for the 2023 edition of my Machine Learning Fundamentals course, held
 ## Contents
 This course introduce to the basic ML algorithms that are foundational for more advanced applications. The course is developed over the course of three days. Despite having a flexible agenda depending on the specific class needs, I usually try to cover the following topics with this timing:
 
-- Day 1: the basic problems of Machine Learning
--- Introduction to Supervised Learning
--- Evaluating supervised learning models results
--- Bias and Variance Tradeoff
--- Linear Regression
--- Regularization
--- Optimization Methods
--- Metrics for Classification
+* Day 1: the basic problems of Machine Learning
+  * Introduction to Supervised Learning
+  * Evaluating supervised learning models results
+  * Bias and Variance Tradeoff
+  * Linear Regression
+  * Regularization
+  * Optimization Methods
+  * Metrics for Classification
 
-- Day 2: a focus on the most important ML Algorithims for classification
--- Logistic Regression
--- Decision Tree
--- Random Forest
--- Gradient Boosting
+* Day 2: a focus on the most important ML Algorithims for classification
+  * Logistic Regression
+  * Decision Tree
+  * Random Forest
+  * Gradient Boosting
 
-- Day 3: Unsupervised Learning and additional topics
--- Support Vector Machines
--- Elements of Unsupervised Learning
--- Principal Component Analysis
--- Cluster Analysis: K-Means
--- Additional topics depending on the class.
+* Day 3: Unsupervised Learning and additional topics
+  * Support Vector Machines
+  * Elements of Unsupervised Learning
+  * Principal Component Analysis
+  * Cluster Analysis: K-Means
+  * Additional topics depending on the class.
 
 Day 3 can vary quite a lot depending on the class. Often here I complete some topics from the previous days, and/or answer to specific questions from students that we didn't have the time to delve into earlier. 
 
@@ -34,6 +34,8 @@ The course is meant to provide clear intuitions about the most important concept
 I will mainly use a whiteboard (either a physical one, or with an iPad) discussing concepts and sketching notes on the fly. There aren't already prepared slides for this course. The idea is to have a discussion on the course topics and to involve every student as much as possible. 
 
 I will present theoretical concepts in an accessible, light-math way, trying to put everything in a broader context. Practical sessions will happen during the course and students will be invited to complete some code snippets and to experiment with the already provided code. 
+
+For the practical sessions, we'll make use MLFlow (https://mlflow.org/), a very important and popular tool used for MLOps and that will come in handy to check the experiment results (*experiments tracking*).
 
 ## Set-up for practical sessions
 Use the `requirement.txt` file to install the needed dependencies. 
