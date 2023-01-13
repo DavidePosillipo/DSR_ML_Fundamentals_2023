@@ -98,7 +98,7 @@ rf_parameters_search = {
 xgb_max_evals = 5
 
 #early stopping on eval metric calculated in last item of 'eval_set' (inside xgb.fit)
-xgb_params_fit = {"verbose" : 1}  #0 --> don't print training steps metrics
+xgb_params_fit = {"verbose" : 0}  #0 --> don't print training steps metrics
 
 xgboost_parameters_search = {
     "objective":'reg:squarederror', # necessario se non uso api sklearn, altrimenti con xgb.XGBClassifier è già il suo defaulrt

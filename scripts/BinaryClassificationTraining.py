@@ -4,7 +4,10 @@ from sklearn.preprocessing import StandardScaler
 from pickle import dump
 from hyperopt import STATUS_OK
 
+import xgboost as xgb
+
 from scripts.Training import Training
+from scripts.config import xgb_params_fit
 
 class BinaryClassificationTraining(Training):
 
@@ -57,4 +60,99 @@ class BinaryClassificationTraining(Training):
             mlflow.sklearn.log_model(cl, artifact_path='model')
 
             return {'loss': cl_metrics['roc_auc_test'], 'status': STATUS_OK}
+
+
+    def objective_decision_tree(self):
+        '''
+        Fitting function for the Classification Decision Tree
+        '''
+
+        # TODO write here your implementation
+
+        pass
+
+
+    def objective_random_forest(self):
+        '''
+        Fitting function for the Random Forest Classifier
+        '''
+
+        # TODO write here your implementation
+
+        pass
+
+
+    def objective_gradient_boosting(self):
+        '''
+        Fitting function for the Gradient Boosting Classifier. 
+        It uses the sklearn implementation. 
+        '''
+
+        # TODO write here your implementation
+
+        pass
+
+
+    def objective_xgb(self,
+            params,
+            X_train,
+            Y_train,
+            X_test,
+            Y_test,
+            save_ohe = True,
+            run_name: str = 'Unnamed',
+            threshold=0.5):
+        '''
+        Fitting function for the XGB classifier. 
+        It uses the xgb implementation
+        '''
+        with mlflow.start_run(run_name=run_name):
+            mlflow.set_tag('model_type','XGboostClassifier')
+            mlflow.set_tag('year_month',self.year_month)
+            mlflow.log_param('model_type','XGboostClassifier')
+            mlflow.log_param('data',self.input_data_path)
+            mlflow.log_params(params)
+            mlflow.log_params(xgb_params_fit)
+
+            cl = xgb.XGBClassifier(**params)
+            cl.fit(X_train, Y_train, **xgb_params_fit, eval_set=[(X_train, Y_train), (X_test, Y_test)])
+
+            Y_pred_train_prob = cl.predict_proba(X_train)
+            Y_pred_test_prob = cl.predict_proba(X_test)
+
+            cl_metrics = self.classification_evaluation(
+                Y_train=Y_train, 
+                Y_test=Y_test, 
+                Y_pred_train_prob=Y_pred_train_prob, 
+                Y_pred_test_prob=Y_pred_test_prob,
+                threshold=threshold)
+
+            mlflow.log_metrics(cl_metrics)
+
+            #save ohe only if available
+            if save_ohe:
+                mlflow.log_artifact(
+                        local_path = self.local_path_save + run_name + '_ohe.pkl',
+                        artifact_path='preprocessing'
+                    )
+            mlflow.log_artifact(
+                    local_path = self.local_path_save + run_name + '_scaler.pkl',
+                    artifact_path='preprocessing'
+                )
+
+            mlflow.sklearn.log_model(cl, artifact_path='model')
+
+            return {'loss': cl_metrics['roc_auc_test'], 'status': STATUS_OK}
+
+
+    def objective_SVM(self):
+        '''
+        Fitting function for the Support Vector Machine Classifier. 
+        It uses the sklearn implementation. 
+        '''
+
+        # TODO write here your implementation
+
+        pass
+
 
