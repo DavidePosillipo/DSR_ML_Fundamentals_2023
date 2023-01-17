@@ -42,7 +42,7 @@ Use the `requirement.txt` file to install the needed dependencies.
 
 For the applications, the NY taxi trip data are used. Go to https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page and manually download "Green Taxi Trip Records (PARQUET)" under `data/input/data_raw`. Do it for the month of January 2022. These are quite big datasets so do the following to reduce the data size:
 
-- `cd data`
+- `cd data/input/`
 - `python get_final_data.py` 
 
 To access the mlflow UI, just run from the repository folder the following command `mlflow ui --backend-store-uri sqlite:///mlflow.db` and open on a web browser the generated ip (e.g. http://127.0.0.1:5000/)
