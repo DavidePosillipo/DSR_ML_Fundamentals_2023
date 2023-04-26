@@ -1,6 +1,8 @@
 import mlflow
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from pickle import dump
 from hyperopt import STATUS_OK
 
@@ -8,6 +10,7 @@ import xgboost as xgb
 
 from scripts.Training import Training
 from scripts.config import xgb_params_fit
+
 
 class BinaryClassificationTraining(Training):
 
@@ -62,35 +65,161 @@ class BinaryClassificationTraining(Training):
             return {'loss': cl_metrics['roc_auc_test'], 'status': STATUS_OK}
 
 
-    def objective_decision_tree(self):
+    def objective_decision_tree(self,
+            params,
+            X_train,
+            X_test,
+            Y_train,
+            Y_test,
+            run_name: str = 'Unnamed',
+            threshold=0.5):
         '''
-        Fitting function for the Classification Decision Tree
+        Fitting function for Classification Tree
         '''
+        with mlflow.start_run(run_name=run_name):
+            mlflow.set_tag('model_type', 'ClassificationTree')
+            mlflow.set_tag('year_month', self.year_month)
 
-        # TODO write here your implementation
+            mlflow.log_param('model_type', 'ClassificationTree')
+            mlflow.log_param('data', self.input_data_path)
+            mlflow.log_param('threshold', threshold)
+            mlflow.log_params(params)
 
-        pass
+            cl = DecisionTreeClassifier(**params)
+
+            cl.fit(X_train, Y_train)
+
+            Y_pred_train_prob = cl.predict_proba(X_train)
+            Y_pred_test_prob = cl.predict_proba(X_test)
+
+            
+            cl_metrics = self.classification_evaluation(
+                Y_train=Y_train, 
+                Y_test=Y_test, 
+                Y_pred_train_prob=Y_pred_train_prob, 
+                Y_pred_test_prob=Y_pred_test_prob,
+                threshold=threshold)
+
+            mlflow.log_metrics(cl_metrics)
+
+            mlflow.log_artifact(
+                    local_path = self.local_path_save + run_name + '_ohe.pkl',
+                    artifact_path='preprocessing'
+                )
+            mlflow.log_artifact(
+                    local_path = self.local_path_save + run_name + '_scaler.pkl',
+                    artifact_path='preprocessing'
+                )
+
+            mlflow.sklearn.log_model(cl, artifact_path='model')
+
+            return {'loss': cl_metrics['roc_auc_test'], 'status': STATUS_OK}
 
 
-    def objective_random_forest(self):
+    def objective_random_forest(self,
+            params,
+            X_train,
+            X_test,
+            Y_train,
+            Y_test,
+            run_name: str = 'Unnamed',
+            threshold=0.5):
         '''
         Fitting function for the Random Forest Classifier
         '''
 
-        # TODO write here your implementation
+        with mlflow.start_run(run_name=run_name):
+            mlflow.set_tag('model_type', 'RandomForestClassifier')
+            mlflow.set_tag('year_month', self.year_month)
 
-        pass
+            mlflow.log_param('model_type', 'RandomForestClassifier')
+            mlflow.log_param('data', self.input_data_path)
+            mlflow.log_param('threshold', threshold)
+            mlflow.log_params(params)
+
+            cl = RandomForestClassifier(**params)
+
+            cl.fit(X_train, Y_train)
+
+            Y_pred_train_prob = cl.predict_proba(X_train)
+            Y_pred_test_prob = cl.predict_proba(X_test)
+
+            
+            cl_metrics = self.classification_evaluation(
+                Y_train=Y_train, 
+                Y_test=Y_test, 
+                Y_pred_train_prob=Y_pred_train_prob, 
+                Y_pred_test_prob=Y_pred_test_prob,
+                threshold=threshold)
+
+            mlflow.log_metrics(cl_metrics)
+
+            mlflow.log_artifact(
+                    local_path = self.local_path_save + run_name + '_ohe.pkl',
+                    artifact_path='preprocessing'
+                )
+            mlflow.log_artifact(
+                    local_path = self.local_path_save + run_name + '_scaler.pkl',
+                    artifact_path='preprocessing'
+                )
+
+            mlflow.sklearn.log_model(cl, artifact_path='model')
+
+            return {'loss': cl_metrics['roc_auc_test'], 'status': STATUS_OK}
 
 
-    def objective_gradient_boosting(self):
+
+    def objective_gradient_boosting(self,
+            params,
+            X_train,
+            X_test,
+            Y_train,
+            Y_test,
+            run_name: str = 'Unnamed',
+            threshold=0.5):
         '''
-        Fitting function for the Gradient Boosting Classifier. 
-        It uses the sklearn implementation. 
+        Fitting function for the GB Classifier
         '''
 
-        # TODO write here your implementation
+        with mlflow.start_run(run_name=run_name):
+            mlflow.set_tag('model_type', 'GradientBoostingClassifier')
+            mlflow.set_tag('year_month', self.year_month)
 
-        pass
+            mlflow.log_param('model_type', 'GradientBoostingClassifier')
+            mlflow.log_param('data', self.input_data_path)
+            mlflow.log_param('threshold', threshold)
+            mlflow.log_params(params)
+
+            cl = GradientBoostingClassifier(**params)
+
+            cl.fit(X_train, Y_train)
+
+            Y_pred_train_prob = cl.predict_proba(X_train)
+            Y_pred_test_prob = cl.predict_proba(X_test)
+
+            
+            cl_metrics = self.classification_evaluation(
+                Y_train=Y_train, 
+                Y_test=Y_test, 
+                Y_pred_train_prob=Y_pred_train_prob, 
+                Y_pred_test_prob=Y_pred_test_prob,
+                threshold=threshold)
+
+            mlflow.log_metrics(cl_metrics)
+
+            mlflow.log_artifact(
+                    local_path = self.local_path_save + run_name + '_ohe.pkl',
+                    artifact_path='preprocessing'
+                )
+            mlflow.log_artifact(
+                    local_path = self.local_path_save + run_name + '_scaler.pkl',
+                    artifact_path='preprocessing'
+                )
+
+            mlflow.sklearn.log_model(cl, artifact_path='model')
+
+            return {'loss': cl_metrics['roc_auc_test'], 'status': STATUS_OK}
+
 
 
     def objective_xgb(self,

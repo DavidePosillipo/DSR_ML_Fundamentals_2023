@@ -48,7 +48,7 @@ class Preprocessing:
             # dropping cash trips row to avoid data leakage
             df = df[df.payment_type == 1]
 
-            df[self.target] = (df['tip_amount'] > 0).astype("int")
+            df[self.target] = (df['tip_amount'] <= 0).astype("int")
             df = df.drop(columns=['tip_amount'], axis=1)
 
 
